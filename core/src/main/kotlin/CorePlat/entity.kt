@@ -1,45 +1,53 @@
 package CorePlat
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.Body
+import com.badlogic.gdx.physics.box2d.BodyDef
 import java.lang.Exception
 
 
 class entity() {
-    operator fun set(startPosition: Position, hp: Float, jumpMaxDuration: UInt): entity
+    operator fun set(startPosition: Vector2, hp: Float, jumpMaxDuration: UInt): entity
     { // Fully complete setter
-        this.hp = hp;
-        this.position = startPosition;
-        this.jumpMaxDuration = jumpMaxDuration;
-        return this;
+        this.hp = hp
+        this.position = startPosition
+        this.jumpMaxDuration = jumpMaxDuration
+        body.type = BodyDef.BodyType.DynamicBody;
+        body.position.set(position)
+        return this
     }
 
     //Variables itself
-    public var hp: Float = 0f;
-    public var position = Position();
-    public var velocity = Float;
-    public var isJumping: Boolean = false;
-    public var isAfloat: Boolean = true;
-    public var jumpPower: Float = 10f;
-    public var jumpMaxDuration: UInt = 0.toUInt();
-    public var jumpDuration = jumpMaxDuration;
-    public var attackDefence: Int = 0; // really should make this float but not now
-    public var attackResistance: Float = 1f;
-    public var attackStrength: Float = 1f;
-    public var xDirection: Int = Input.Keys.RIGHT;
+    var body: BodyDef = BodyDef();
+    var hp: Float = 0f
+    var position = Vector2()
+    var velocity = Float
+    var isJumping: Boolean = false
+    var isAfloat: Boolean = true
+    var jumpPower: Float = 10f
+    var jumpMaxDuration: UInt = 0.toUInt()
+    var jumpDuration = jumpMaxDuration
+    var attackDefence: Int = 0 // really should make this float but not now
+    var attackResistance: Float = 1f
+    var attackStrength: Float = 1f
+    var xDirection: Int = Input.Keys.RIGHT;
+    var maxMachTime: UInt = 0.toUInt() // time (frames in this case) it takes to get from 0 velocity to the max
+    var MachTimer: UInt =  0.toUInt()
+    var maxWalkSpeed: Float = 0f //incomplete
+    var maxRunSpeed: Float = 0f //incomplete
 
     fun jump()
     {
         if(!(isJumping || isAfloat))
         {
-            if(jumpDuration > 0.toUInt())
+            if(jumpDuration > 0.toUInt()) //jumpduration is uint so i dont think if i need to add an else
             {
+                position.y+= jumpPower * jumpDuration.toFloat()/10f
                 jumpDuration--
-                position.Y+= jumpPower * 
+                Gdx.graphics.deltaTime
                 //continue later
-            }
-            else
-            {
-
             }
         }
         else
@@ -69,7 +77,14 @@ class entity() {
     }
     fun move(direction: Int)
     {
-        if(!varOrCache.HorizontalDirectionArray.contains(direction)) throw Exception("Inputted an invalid direction (Horizontal needed)")
+        if(!varOrCache.HorizontalDirectionArray.contains(direction))
+        {
+            throw Exception("Inputted an invalid direction (Horizontal needed)")
+        }
+        else
+        {
+            position.x += 1f//change this later
+        }
 
     }
     fun die()
