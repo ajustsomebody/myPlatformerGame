@@ -42,12 +42,16 @@ class entity() {
     {
         if(!(isJumping || isAfloat))
         {
-            if(jumpDuration > 0.toUInt()) //jumpduration is uint so i dont think if i need to add an else
+            if(jumpDuration > 0.toUInt()) //it can still be 0!
             {
                 position.y+= jumpPower * jumpDuration.toFloat()/10f
                 jumpDuration--
                 Gdx.graphics.deltaTime
                 //continue later
+            }
+            else // when its 0. implement this later on!
+            {
+
             }
         }
         else
