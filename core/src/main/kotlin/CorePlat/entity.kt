@@ -5,6 +5,8 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
+import com.badlogic.gdx.physics.box2d.FixtureDef
+import sun.jvm.hotspot.oops.CellTypeState.ref
 import java.lang.Exception
 
 
@@ -12,17 +14,16 @@ class entity() {
     operator fun set(startPosition: Vector2, hp: Float, jumpMaxDuration: UInt): entity
     { // Fully complete setter
         this.hp = hp
-        this.position = startPosition
         this.jumpMaxDuration = jumpMaxDuration
         body.type = BodyDef.BodyType.DynamicBody;
-        body.position.set(position)
+        body.position.set(startPosition)
         return this
     }
 
     //Variables itself
     var body: BodyDef = BodyDef();
     var hp: Float = 0f
-    var position = Vector2()
+    var position: Vector2 get() {return body.position} set(newPos: Vector2) {body.position.set(newPos.x, newPos.y)}
     var velocity = Float
     var isJumping: Boolean = false
     var isAfloat: Boolean = true
@@ -32,13 +33,15 @@ class entity() {
     var attackDefence: Int = 0 // really should make this float but not now
     var attackResistance: Float = 1f
     var attackStrength: Float = 1f
+    val bodyInTheWorld: Body? = null // nulls mean that it will be initialised later
+    var fixture: FixtureDef? = null
     var xDirection: Int = Input.Keys.RIGHT;
     var maxMachTime: UInt = 0.toUInt() // time (frames in this case) it takes to get from 0 velocity to the max
     var MachTimer: UInt =  0.toUInt()
     var maxWalkSpeed: Float = 0f //incomplete
     var maxRunSpeed: Float = 0f //incomplete
 
-    fun jump()
+    fun jump() // this will make the player go up only when this is pressed
     {
         if(!(isJumping || isAfloat))
         {
@@ -46,12 +49,12 @@ class entity() {
             {
                 position.y+= jumpPower * jumpDuration.toFloat()/10f
                 jumpDuration--
-                Gdx.graphics.deltaTime
                 //continue later
             }
-            else // when its 0. implement this later on!
+            else
             {
-
+                isJumping = false
+                jumpDuration = jumpMaxDuration
             }
         }
         else
@@ -101,7 +104,10 @@ class entity() {
     }
     fun update()
     {
-
+        if(isJumping)
+        {
+            body.
+        }
     }
     //Getters
 

@@ -8,9 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.Body
-import com.badlogic.gdx.physics.box2d.BodyDef
-import com.badlogic.gdx.physics.box2d.World
+import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.utils.viewport.Viewport
 import javax.swing.text.html.parser.Entity
 
@@ -26,16 +24,22 @@ class main : ApplicationAdapter() {
 
     fun createObject(createThis: entity) // will create reference or copy issues probably...
     {
-        if(!entities.contains(createThis)
-            entities.add(createThis)
-        world!!.createBody(createThis.body) // conitnue from here
+        if(!entities.contains(createThis))
+                entities.add(createThis)
+        createThis.bodyInTheWorld = world!!.createBody(createThis.body) // i cant fix this rn, enough coding for today
+        var temporaryShape = PolygonShape()
+        temporaryShape.setAsBox(50f, 1f)
+        createThis.bodyInTheWorld.createFixture(temporaryShape, 1f)
+
+        createThis.bodyInTheWorld.createFixture(temporaryShape, 1f )
     }
     fun deleteObject(deleteThis: entity)
     {
-        world!!.destroyBody(deleteThis.body)
-        if(entities.contains(Pair<entity, BodyDef>(deleteThis, deleteThis.body)))
+
+        if(entities.contains(deleteThis))
         {
-            entities.remove(Pair<entity, BodyDef>(deleteThis, deleteThis.body))
+            entities.remove(deleteThis)
+            world!!.destroyBody(deleteThis.bodyInTheWorld)
         }
     }
 
