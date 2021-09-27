@@ -14,7 +14,7 @@ class entity(startPositionT: Vector2,
              jumpMaxDurationT: Int,
              textureT: Texture) {
 
-    operator fun set(startPosition: Vector2,
+/*    operator fun set(startPosition: Vector2,
                      hp: Float,
                      jumpMaxDuration: Int,
                      texture: Texture): entity
@@ -26,33 +26,39 @@ class entity(startPositionT: Vector2,
         if(!(texture == null)) this.texture = texture
         else this.texture = Texture("badlogic.png")
         return this
-    }
+    }*/
 
-    //Variables itself
-    var bodyDefinition: BodyDef = BodyDef();
-    var hp: Float = 0f
-    var position: Vector2 get() {return body!!.position} set(newPos: Vector2) { body!!.position.set(newPos.x, newPos.y)}
-    var speed: Float = 10f
-    var runSpeed: Float = speed * 1.5f
-    var isJumping: Boolean = false
-    var isAfloat: Boolean = true
-    var jumpPower: Float = 10f
-    var jumpMaxDuration: UInt = 0.toUInt()
-    var jumpDuration = jumpMaxDuration
-    var attackDefence: Int = 0 // really should make this float but not now
-    var attackResistance: Float = 1f
+    //Variables
+
+    var bodyDefinition: BodyDef = BodyDef();    var body: Body? = null
+
+    var hp: Float = 0f;
+    var attackDefence: Float = 0f;
+    var attackResistance: Float = 1f;
+ // var attackDelay: Float = 1.toseconds();
     var attackStrength: Float = 1f
-    var body: Body? = null // nulls mean that it will be initialised later
-    var xDirection: Int = Input.Keys.RIGHT
-    var isRunning: Boolean = false
-    var isWalking : Boolean = false
+
+    var position: Vector2 get() {return body!!.position} set(newPos: Vector2) { body!!.position.set(newPos.x, newPos.y)}
+    // ^ I need to keep this for better usability, i highly doubt if i will ever use it though
+    var speed: Float = 1000f;
+    var runSpeed: Float = speed * 1.5f;
+    var xDirection: Int = Input.Keys.RIGHT;
+    var maxWalkVelocity: Float = 10000f // needs proper scaling.
+    var maxRunVelocity: Float = 15000f  // needs proper scaling.
+    var changeDirectionBonus: Float = 2f
+
+    var jumpPower: Float = 10f;
+    var jumpMaxDuration: UInt = 20.toUInt()
+    var jumpDuration = jumpMaxDuration;
+    var isJumping: Boolean = false;
+
+    var isAfloat: Boolean = false;
+    var isRunning: Boolean = false;
+    var isWalking : Boolean = false;
+    var movedLastFrame: Boolean = false;
     var isRunningOrMoving: Boolean = false
         get() {return isRunning || isWalking}
-    var movedThisFrame: Boolean = false
-    //var maxMachTime: UInt = 0.toUInt() // time (frames in this case) it takes to get from 0 velocity to the max
-    //var MachTimer: UInt =  0.toUInt() i actually dont need these two probably
-    var maxWalkVelocity: Float = 0f //incomplete
-    var maxRunVelocity: Float = 0f //incomplete
+
     var texture : Texture? = null
 
 
@@ -73,6 +79,7 @@ class entity(startPositionT: Vector2,
             jumpDuration = jumpMaxDuration
             isJumping == true
         }
+        println("JUMPEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
         /*if(canInfiniJump)
         {
             jumpDuration = jumpMaxDuration
@@ -102,41 +109,156 @@ class entity(startPositionT: Vector2,
             throw Exception("Inputted an invalid direction (Horizontal needed)")
         }
         else { // if you want to display velocity it will show up as minuses as well, if this velocity system
-            movedThisFrame = true
             if (run == false) { // at its base doesn't cause any problems, just get the value without the
-                isWalking = true
-                if(abs(body!!.linearVelocity.x) + speed <= maxWalkVelocity)
-                {
-                    xDirection = direction // minus or plus
-                    if(xDirection == Input.Keys.RIGHT) body!!.linearVelocity.add(Vector2(speed, 0f))
-                    if(xDirection ==  Input.Keys.LEFT) body!!.linearVelocity.add(Vector2(speed * -1, 0f))
-                }
-                else
-                {
-                    var tempVar: Float = maxWalkVelocity - speed
-                    xDirection = direction
-                    if(xDirection == Input.Keys.RIGHT) body!!.linearVelocity.add(Vector2(tempVar, 0f))
-                    if(xDirection ==  Input.Keys.LEFT) body!!.linearVelocity.add(Vector2(tempVar * -1, 0f))
-                }
 
+                if(direction != xDirection) // sudden change of directions
+                {
+
+                    if(direction == Input.Keys.RIGHT)
+                    {
+                        if(isRunningOrMoving) //todo:set up all of those changed direction stuff
+                        {                     //todo: you have set up most of those as runningOrMoving, it should be set up as movedLastFrame
+                            xDirection = direction//todo: implement movedLastFrame
+                            body!!.setLinearVelocity(body!!.linearVelocity.x + (speed * changeDirectionBonus), body!!.linearVelocity.y)
+                        }                             //todo: try to change force to setlinearvelocity in movement
+                        else {                        //todo: fix being able to getto 130 vel by pressing left and right fast
+                            xDirection = direction
+                            body!!.setLinearVelocity(
+                                body!!.linearVelocity.x + (speed * changeDirectionBonus / 1.5f),
+                                body!!.linearVelocity.y //todo: those velocity negations for left direction are bugged as hell, u surely will spend a lot of time trying to fix it
+                            )
+                        }
+                        isWalking = true
+                        isRunning = false
+                        movedLastFrame = true;
+                    }
+                    if(direction == Input.Keys.LEFT)
+                    {
+                        if(isRunningOrMoving)
+                        {
+                            xDirection = direction
+                            body!!.setLinearVelocity(body!!.linearVelocity.x + (speed * changeDirectionBonus), body!!.linearVelocity.y)
+                        }
+                        else {
+                            xDirection = direction
+                            body!!.setLinearVelocity(
+                                body!!.linearVelocity.x + (speed * changeDirectionBonus),
+                                body!!.linearVelocity.y
+                            )
+                        }
+                        isWalking = true
+                        isRunning = false
+                        movedLastFrame = true;
+                    }
+                }
+                else {
+                    isWalking = true
+                    isRunning = false
+                    movedLastFrame = true;
+                    if (abs(body!!.linearVelocity.x) + speed <= maxWalkVelocity) {
+                        xDirection = direction // minus or plus
+                        if (xDirection == Input.Keys.RIGHT) body!!.applyForce(
+                            Vector2(speed * 1, 0f),
+                            body!!.worldCenter,
+                            true
+                        )
+                        if (xDirection == Input.Keys.LEFT) body!!.applyForce(
+                            Vector2(speed * -1, 0f),
+                            body!!.worldCenter,
+                            true
+                        )
+                    } else {
+                        var tempVar: Float = maxWalkVelocity - speed
+                        xDirection = direction
+                        if (xDirection == Input.Keys.RIGHT) body!!.applyForce(
+                            Vector2(tempVar * 1, 0f),
+                            body!!.worldCenter,
+                            true
+                        )
+                        if (xDirection == Input.Keys.LEFT) body!!.applyForce(
+                            Vector2(tempVar * -1, 0f),
+                            body!!.worldCenter,
+                            true
+                        )
+                    }
+                }
+                println("player walked")
             }
             else // run == true
             {
-                isRunning = true
-                if(abs(body!!.linearVelocity.x) + speed <= maxRunVelocity)
+                if(direction != xDirection) // sudden change of directions
                 {
-                    xDirection = direction // minus or plus
-                    if(xDirection == Input.Keys.RIGHT) body!!.linearVelocity.add(Vector2(runSpeed, 0f))
-                    if(xDirection ==  Input.Keys.LEFT) body!!.linearVelocity.add(Vector2(runSpeed * -1, 0f))
+                    if(direction == Input.Keys.RIGHT)
+                    {
+                        if(isRunningOrMoving)
+                        {
+                            xDirection = direction
+                            body!!.setLinearVelocity(body!!.linearVelocity.x + (speed * changeDirectionBonus), body!!.linearVelocity.y)
+                        }
+                        else {
+                            xDirection = direction
+                            body!!.setLinearVelocity(
+                                body!!.linearVelocity.x + (speed * changeDirectionBonus / 1.5f),
+                                body!!.linearVelocity.y
+                            )
+                        }
+                        isWalking = false
+                        isRunning = true
+                        movedLastFrame = true;
+                    }
+                    if(direction == Input.Keys.LEFT)
+                    {
+                        if(isRunningOrMoving)
+                        {
+                            xDirection = direction
+                            body!!.setLinearVelocity(body!!.linearVelocity.x + (speed * changeDirectionBonus), body!!.linearVelocity.y)
+                        }
+                        else {
+                            xDirection = direction
+                            body!!.setLinearVelocity(
+                                body!!.linearVelocity.x + (speed * changeDirectionBonus),
+                                body!!.linearVelocity.y
+                            )
+                        }
+                        isWalking = false
+                        isRunning = true
+                        movedLastFrame = true;
+                    }
                 }
-                else
-                {
-                    var tempVar: Float = maxRunVelocity - runSpeed
-                    xDirection = direction
-                    if(xDirection == Input.Keys.RIGHT) body!!.linearVelocity.add(Vector2(tempVar, 0f))
-                    if(xDirection ==  Input.Keys.LEFT) body!!.linearVelocity.add(Vector2(tempVar * -1, 0f))
-                }
+                else {
+                    isWalking = false;
+                    isRunning = true;
+                    movedLastFrame = true;
+                    if (abs(body!!.linearVelocity.x) + speed <= maxRunVelocity) {
+                        xDirection = direction // minus or plus
+                        if (xDirection == Input.Keys.RIGHT) body!!.applyForce(
+                            Vector2(runSpeed * 1, 0f),
+                            body!!.worldCenter,
+                            true
+                        )
+                        if (xDirection == Input.Keys.LEFT) body!!.applyForce(
+                            Vector2(runSpeed * -1, 0f),
+                            body!!.worldCenter,
+                            true
+                        )
+                        movedLastFrame = true
+                    } else {
+                        var tempVar: Float = maxRunVelocity - runSpeed
+                        xDirection = direction
 
+                        if (xDirection == Input.Keys.RIGHT) body!!.applyForce(
+                            Vector2(tempVar, 0f),
+                            body!!.worldCenter,
+                            true
+                        )
+                        if (xDirection == Input.Keys.LEFT) body!!.applyForce(
+                            Vector2(tempVar * -1, 0f),
+                            body!!.worldCenter,
+                            true
+                        )
+                    }
+                }
+                println("player ran")
             }
         }
     }
@@ -153,18 +275,33 @@ class entity(startPositionT: Vector2,
 
         if(isJumping)
         {
-
+            println("at jump body")
             if(jumpDuration> 0.toUInt()) {
-                body!!.applyForce(Vector2(0f, jumpPower / 10f), body!!.worldCenter, true)
+                body!!.applyForce(Vector2(0f, jumpPower * 1000f), body!!.worldCenter, true)
                 jumpDuration--
             }
-
-
             else
                 isJumping=false
                 jumpDuration = jumpMaxDuration
         }
-        movedThisFrame = false
+        if(movedLastFrame == false)
+        {
+            /*body!!.linearDamping = 1f;*/
+            var thresholdVelToStop = 0.10
+            var velDecreased =  1f
+            if(abs(body!!.linearVelocity.x)>0)
+            {
+
+                if(abs(body!!.linearVelocity.x)-velDecreased > thresholdVelToStop)
+                    if(xDirection== Input.Keys.RIGHT) body!!.setLinearVelocity(body!!.linearVelocity.x-velDecreased, body!!.linearVelocity.y)
+                    else body!!.setLinearVelocity((abs(body!!.linearVelocity.x-velDecreased))*-1, body!!.linearVelocity.y)
+                else
+                {
+                    body!!.setLinearVelocity(0f, body!!.linearVelocity.y)
+                }
+            }
+        }
+        movedLastFrame = false
     }
     //Getters
 }

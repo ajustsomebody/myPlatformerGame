@@ -38,18 +38,13 @@ class main : ApplicationAdapter() {
         bodyDef.type = BodyDef.BodyType.StaticBody
         bodyDef.position[0f] = -10f
         // add it to the world
-        // add it to the world
         var bodys = world!!.createBody(bodyDef)
-        // set the shape (here we use a box 50 meters wide, 1 meter tall )
         // set the shape (here we use a box 50 meters wide, 1 meter tall )
         val shape = PolygonShape()
         shape.setAsBox(50f, 1f)
         // create the physical object in our bodyDefinition)
         // without this our bodyDefinition would just be data in the world
-        // create the physical object in our bodyDefinition)
-        // without this our bodyDefinition would just be data in the world
         bodys.createFixture(shape, 0.0f)
-        // we no longer use the shape object here so dispose of it.
         // we no longer use the shape object here so dispose of it.
         shape.dispose()
     }
@@ -68,10 +63,10 @@ class main : ApplicationAdapter() {
         image = Texture("badlogic.png")
         camera = OrthographicCamera()
         world = World(Vector2(0f,0f), true)
+        world!!.gravity.set(0f, 1f)
         createFloor()
         player = createObject(entity(Vector2(0f,0f), 100f, 10, Texture("png//Idle (1).png")))
-        player!!.body!!.fixtureList.first().density = 1f
-        player!!.body!!.resetMassData()
+        player!!.body!!.massData.mass = 10f;
     }
     override fun render() {
         Gdx.gl.glClearColor(1f, 1f, 1f, 1f)
@@ -121,10 +116,11 @@ class main : ApplicationAdapter() {
         }
         if(varOrCache.DebugMode)
         {
-            println("Player.velocity: ${player!!.body!!.linearVelocity.x}, ${player!!.body!!.linearVelocity.y} " +
-                    "Player.Direction: ${when(player!!.xDirection) {Input.Keys.RIGHT-> "Right"
-                                                                    Input.Keys.LEFT-> "Left";else -> "unknown"
-                    }}")
+            println("Vel: ${player!!.body!!.linearVelocity.x}, ${player!!.body!!.linearVelocity.y} " +
+                    "Dir: ${when(player!!.xDirection) {Input.Keys.RIGHT-> "Right"
+                                                       Input.Keys.LEFT-> "Left";else -> "unknown" }}"+
+                    "Pos: ${player!!.body!!.position.x}, ${player!!.body!!.position.y}"+
+                    "Jdr: ${player!!.jumpDuration} IsJ: ${player!!.isJumping}")
         }
     }
 
