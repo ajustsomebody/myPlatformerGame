@@ -5,11 +5,16 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import java.lang.Exception
+import kotlin.math.abs
 
 
-class entity(startPositionT: Vector2, hpT: Float, jumpMaxDurationT: Int) {
+class entity(startPositionT: Vector2,
+             hpT: Float,
+             jumpMaxDurationT: Int) {
 
-    operator fun set(startPosition: Vector2, hp: Float, jumpMaxDuration: Int): entity
+    operator fun set(startPosition: Vector2,
+                     hp: Float,
+                     jumpMaxDuration: Int): entity
     { // Fully complete setter
         this.hp = hp
         this.jumpMaxDuration = jumpMaxDuration.toUInt()
@@ -35,8 +40,12 @@ class entity(startPositionT: Vector2, hpT: Float, jumpMaxDurationT: Int) {
     var body: Body? = null // nulls mean that it will be initialised later
     var xDirection: Int = Input.Keys.RIGHT
     var isRunning: Boolean = false
-    var maxMachTime: UInt = 0.toUInt() // time (frames in this case) it takes to get from 0 velocity to the max
-    var MachTimer: UInt =  0.toUInt()
+    var isWalking : Boolean = false
+    var isRunningOrMoving: Boolean = false
+        get() {return isRunning || isWalking}
+    var movedThisFrame: Boolean = false
+    //var maxMachTime: UInt = 0.toUInt() // time (frames in this case) it takes to get from 0 velocity to the max
+    //var MachTimer: UInt =  0.toUInt() i actually dont need these two probably
     var maxWalkVelocity: Float = 0f //incomplete
     var maxRunVelocity: Float = 0f //incomplete
 
@@ -85,12 +94,40 @@ class entity(startPositionT: Vector2, hpT: Float, jumpMaxDurationT: Int) {
             throw Exception("Inputted an invalid direction (Horizontal needed)")
         }
         else { // if you want to display velocity it will show up as minuses as well, if this velocity system
+            movedThisFrame = true
             if (run == false) { // at its base doesn't cause any problems, just get the value without the
-                xDirection = direction // minus or plus
-                body!!.linearVelocity.add(Vector2(  speed, 0f))//to do: implement - for left and + for right
-            }                                   // ^ here
-            else (run == true)
+                isWalking = true
+                if(abs(body!!.linearVelocity.x) + speed <= maxWalkVelocity)
+                {
+                    xDirection = direction // minus or plus
+                    if(xDirection == Input.Keys.RIGHT) body!!.linearVelocity.add(Vector2(speed, 0f))
+                    if(xDirection ==  Input.Keys.LEFT) body!!.linearVelocity.add(Vector2(speed * -1, 0f))
+                }
+                else
+                {
+                    var tempVar: Float = maxWalkVelocity - speed
+                    xDirection = direction
+                    if(xDirection == Input.Keys.RIGHT) body!!.linearVelocity.add(Vector2(tempVar, 0f))
+                    if(xDirection ==  Input.Keys.LEFT) body!!.linearVelocity.add(Vector2(tempVar * -1, 0f))
+                }
+
+            }
+            else // run == true
             {
+                isRunning = true
+                if(abs(body!!.linearVelocity.x) + speed <= maxRunVelocity)
+                {
+                    xDirection = direction // minus or plus
+                    if(xDirection == Input.Keys.RIGHT) body!!.linearVelocity.add(Vector2(runSpeed, 0f))
+                    if(xDirection ==  Input.Keys.LEFT) body!!.linearVelocity.add(Vector2(runSpeed * -1, 0f))
+                }
+                else
+                {
+                    var tempVar: Float = maxRunVelocity - runSpeed
+                    xDirection = direction
+                    if(xDirection == Input.Keys.RIGHT) body!!.linearVelocity.add(Vector2(tempVar, 0f))
+                    if(xDirection ==  Input.Keys.LEFT) body!!.linearVelocity.add(Vector2(tempVar * -1, 0f))
+                }
 
             }
         }
@@ -105,12 +142,12 @@ class entity(startPositionT: Vector2, hpT: Float, jumpMaxDurationT: Int) {
     }
     fun update()
     {
+
         if(isJumping)
         {
 
             if(jumpDuration> 0.toUInt()) {
                 body!!.applyForce(Vector2(0f, jumpPower / 10f), body!!.worldCenter, true)
-                bodyDefinition.linearVelocity.set(bodyDefinition.linearVelocity.x, bodyDefinition.linearVelocity.y + 0.5f)
                 jumpDuration--
             }
 
@@ -119,6 +156,7 @@ class entity(startPositionT: Vector2, hpT: Float, jumpMaxDurationT: Int) {
                 isJumping=false
                 jumpDuration = jumpMaxDuration
         }
+        movedThisFrame = false
     }
     //Getters
 }

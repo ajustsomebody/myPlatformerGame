@@ -69,6 +69,8 @@ class main : ApplicationAdapter() {
         world = World(Vector2(0f,0f), true)
         createFloor()
         player = createObject(entity(Vector2(0f,0f), 100f, 10))
+        player!!.body!!.fixtureList.first().density = 1f
+        player!!.body!!.resetMassData()
     }
     override fun render() {
         Gdx.gl.glClearColor(1f, 1f, 1f, 1f)
@@ -94,11 +96,11 @@ class main : ApplicationAdapter() {
         }
         if(Gdx.input.isKeyPressed(Input.Keys.RIGHT))
         {
-
+            player!!.move(Input.Keys.RIGHT, Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT))
         }
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT))
         {
-
+            player!!.move(Input.Keys.LEFT, Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT))
         }
         if(Gdx.input.isKeyPressed(Input.Keys.DOWN))
         {
@@ -108,13 +110,17 @@ class main : ApplicationAdapter() {
         {
 
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT))
-        {
 
-        }
         if(Gdx.input.isKeyPressed(Input.Keys.SPACE))
         {
-
+            player!!.jump()
+        }
+        if(varOrCache.DebugMode)
+        {
+            println("Player.Mass: ${player!!.body!!.mass} " +
+                    "Player.Direction: ${when(player!!.xDirection) {Input.Keys.RIGHT-> "Right"
+                                                                    Input.Keys.LEFT-> "Left";else -> "unknown"
+                    }}")
         }
     }
 
