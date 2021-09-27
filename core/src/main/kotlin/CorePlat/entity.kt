@@ -1,6 +1,7 @@
 package CorePlat
 
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
@@ -10,16 +11,20 @@ import kotlin.math.abs
 
 class entity(startPositionT: Vector2,
              hpT: Float,
-             jumpMaxDurationT: Int) {
+             jumpMaxDurationT: Int,
+             textureT: Texture) {
 
     operator fun set(startPosition: Vector2,
                      hp: Float,
-                     jumpMaxDuration: Int): entity
+                     jumpMaxDuration: Int,
+                     texture: Texture): entity
     { // Fully complete setter
         this.hp = hp
         this.jumpMaxDuration = jumpMaxDuration.toUInt()
         bodyDefinition.type = BodyDef.BodyType.DynamicBody;
         bodyDefinition.position.set(startPosition)
+        if(!(texture == null)) this.texture = texture
+        else this.texture = Texture("badlogic.png")
         return this
     }
 
@@ -48,6 +53,7 @@ class entity(startPositionT: Vector2,
     //var MachTimer: UInt =  0.toUInt() i actually dont need these two probably
     var maxWalkVelocity: Float = 0f //incomplete
     var maxRunVelocity: Float = 0f //incomplete
+    var texture : Texture? = null
 
 
     init {
@@ -55,6 +61,8 @@ class entity(startPositionT: Vector2,
         this.jumpMaxDuration = jumpMaxDurationT.toUInt()
         bodyDefinition.type = BodyDef.BodyType.DynamicBody;
         bodyDefinition.position.set(startPositionT)
+        if(!(textureT == null)) this.texture = textureT
+        else this.texture = Texture("badlogic.png")
     }
 
 

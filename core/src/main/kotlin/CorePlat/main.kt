@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
+import com.badlogic.gdx.scenes.scene2d.ui.Image
 
 
 /** [com.badlogic.gdx.ApplicationListener] implementation shared by all platforms.  */
@@ -68,7 +69,7 @@ class main : ApplicationAdapter() {
         camera = OrthographicCamera()
         world = World(Vector2(0f,0f), true)
         createFloor()
-        player = createObject(entity(Vector2(0f,0f), 100f, 10))
+        player = createObject(entity(Vector2(0f,0f), 100f, 10, Texture("png//Idle (1).png")))
         player!!.body!!.fixtureList.first().density = 1f
         player!!.body!!.resetMassData()
     }
@@ -77,7 +78,10 @@ class main : ApplicationAdapter() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         applyLogic()
         batch!!.begin()
-        batch!!.draw(image, 165f, 180f)
+        for(element in entities)
+        {
+            batch!!.draw(element.texture, element.body!!.position.x, element.body!!.position.y)
+        }
         batch!!.end()
 
     }
@@ -117,7 +121,7 @@ class main : ApplicationAdapter() {
         }
         if(varOrCache.DebugMode)
         {
-            println("Player.Mass: ${player!!.body!!.mass} " +
+            println("Player.velocity: ${player!!.body!!.linearVelocity.x}, ${player!!.body!!.linearVelocity.y} " +
                     "Player.Direction: ${when(player!!.xDirection) {Input.Keys.RIGHT-> "Right"
                                                                     Input.Keys.LEFT-> "Left";else -> "unknown"
                     }}")
