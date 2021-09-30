@@ -1,0 +1,1 @@
+//todo: Try to lower the amount of double-exponents (!!'s) you use by using lateinit

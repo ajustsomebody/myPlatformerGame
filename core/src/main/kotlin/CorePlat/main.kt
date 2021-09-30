@@ -118,7 +118,7 @@ class main : ApplicationAdapter() {
         {
             println("Vel: ${player!!.body!!.linearVelocity.x}, ${player!!.body!!.linearVelocity.y} " +
                     "Dir: ${when(player!!.xDirection) {Input.Keys.RIGHT-> "Right"
-                                                       Input.Keys.LEFT-> "Left";else -> "unknown" }}"+
+                                                       Input.Keys.LEFT-> "Left";else -> "unknown" }} "+
                     "Pos: ${player!!.body!!.position.x}, ${player!!.body!!.position.y}"+
                     "Jdr: ${player!!.jumpDuration} IsJ: ${player!!.isJumping}")
         }
